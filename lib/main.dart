@@ -34,17 +34,17 @@ class _MyHomePageState extends State<MyHomePage> {
   int seleted = -1;
 
   void showPopupSetting(Function seletedNote) => showDialog(context: context, builder: (builder) => AlertDialog(content: SingleChildScrollView(child: Column(children: [
-    Container(child: _custompopup((target,index) => seletedNote(target,index)),width: 100,height: 100,)
+    Container(child: _custompopup((target,index) => seletedNote(target,index)),width: 230,height: 200,)
   ],mainAxisAlignment: MainAxisAlignment.center,mainAxisSize: MainAxisSize.min,),),));
 
-  void addTarget(String target,int index){
-    print("tarrrrget : $target");
-    print("indexxxxx : $index");
+  void addTarget(List<String> target,List<int> index){
     setState(() {
     seleted = -1;
-    _listOffset.add(ItemModel(id: 'note${_listOffset.length}',offset: Offset.zero, isShow: false,target: []));
-    _listOffset[index].target.add('note${_listOffset.length - 1}');
-    _listOffset[index].isShow = true;
+    _listOffset.add(ItemModel(id: 'note${_listOffset.length}',offset: Offset.zero, isShow: false,target: target));
+    for (int indexSeleted in index){
+      _listOffset[indexSeleted].target.add('note${_listOffset.length - 1}');
+      _listOffset[indexSeleted].isShow = true;
+    }
     });
     Navigator.pop(context);
     for(ItemModel item in _listOffset){
@@ -83,14 +83,18 @@ class _MyHomePageState extends State<MyHomePage> {
           sourceAnchor: Alignment.bottomCenter,
           targetAnchor: Alignment.centerRight,
           color: Colors.orange,
-          child: IconButton(onPressed: (){
-            // setState(() {
-            //   seleted = index;
-            //   _listOffset[seleted - 1].isShow = true;
-            //   _listOffset[seleted - 1].target = 'note$seleted';
-            //   print("selected : $seleted");
-            // });
-          }, icon: Icon(Icons.add_box,size: 50,)),
+          child: Column(children: [
+            Text(_listOffset[index].id),
+            SizedBox(height: 0),
+            IconButton(onPressed: (){
+              // setState(() {
+              //   seleted = index;
+              //   _listOffset[seleted - 1].isShow = true;
+              //   _listOffset[seleted - 1].target = 'note$seleted';
+              //   print("selected : $seleted");
+              // });
+            }, icon: Icon(Icons.add_box,size: 50,))
+          ],),
         ),onTap: (){
           print("tap tap");
         },),
@@ -102,12 +106,26 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _custompopup(Function selectedNote(String target,int index)) => Center(child:
-  ListView.builder(
-    itemBuilder: (ctx,index) => Card(child: Padding(child:
-    GestureDetector(child: Text(_listOffset[index].id,textAlign: TextAlign.center,),onTap: (){
-      selectedNote(_listOffset[index].id,index);
-    },),
-      padding: EdgeInsets.all(10),)),
-    itemCount: _listOffset.length,));
+  Widget _custompopup(Function selectedNote(List<String> target,List<int> index)){
+    List<String> listTarget = [];
+    List<int> listIndex = [];
+    return Center(child:
+    Column(children: [
+      Expanded(child: GridView.builder(gridDelegate:
+      SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        itemBuilder: (ctx,index) =>
+            Card(child: Center(child:
+            GestureDetector(child: Text(_listOffset[index].id,textAlign: TextAlign.center,),
+              onTap: (){
+                listTarget.add(_listOffset[index].id);
+                listIndex.add(index);
+              },),)),shrinkWrap: true,itemCount: _listOffset.length,)),
+      RaisedButton(onPressed: (){
+        selectedNote(listTarget,listIndex);
+        for (String item in listTarget){
+          print("itemkakaka : $item");
+        }
+      },child: Text("Add"),)
+    ],));
+  }
 }
